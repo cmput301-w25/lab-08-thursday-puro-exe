@@ -102,13 +102,16 @@ public class MainActivityTest {
     }
 
     @Test
-    public void appShouldDisplayExistingMoviesOnLaunch() {
+    public void appShouldDisplayExistingMoviesOnLaunch() throws InterruptedException {
         // Check that the initial data is loaded
+        Thread.sleep(3000);
         onView(withText("Oppenheimer")).check(matches(isDisplayed()));
         onView(withText("Barbie")).check(matches(isDisplayed()));
 
+
         // Click on Oppenheimer
         onView(withText("Oppenheimer")).perform(click());
+
 
         // Check that the movie details are displayed correctly
         onView(withId(R.id.edit_title)).check(matches(withText("Oppenheimer")));
@@ -128,7 +131,7 @@ public class MainActivityTest {
 
     @After
     public void tearDown() {
-        String projectId = "YOUR-PROJECT-ID";
+        String projectId = "lab8-demo-530ed";
         URL url = null;
         try {
             url = new URL("http://10.0.2.2:8080/emulator/v1/projects/" + projectId + "/databases/(default)/documents");
