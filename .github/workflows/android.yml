@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v4 # Similar to above, check out your code to run
+        uses: actions/checkout@v4 
 
       - name: Enable KVM  
         run: |
