@@ -1,11 +1,14 @@
 package com.example.androidcicd.movie;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.IntSummaryStatistics;
 
 public class MovieProvider {
     private static MovieProvider movieProvider;
@@ -63,6 +66,7 @@ public class MovieProvider {
     public void addMovie(Movie movie) {
         DocumentReference docRef = movieCollection.document();
         movie.setId(docRef.getId());
+
         if (validMovie(movie, docRef)) {
             docRef.set(movie);
         } else {
@@ -78,4 +82,27 @@ public class MovieProvider {
     public boolean validMovie(Movie movie, DocumentReference docRef) {
         return movie.getId().equals(docRef.getId()) && !movie.getTitle().isEmpty() && !movie.getGenre().isEmpty() && movie.getYear() > 0;
     }
+    public static void setInstanceForTesting(FirebaseFirestore firestore) {
+        movieProvider = new MovieProvider(firestore);
+    }
+
+    public void checkUniqueTitle(String title, TitleCheckCallback callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference moviesRef = db.collection("movies");
+
+        moviesRef.whereEqualTo("title", title)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        callback.onResult(false);  // Title is not unique
+                    } else {
+                        callback.onResult(true);  // Title is unique
+                    }
+                });
+    }
+
+    public interface TitleCheckCallback {
+        void onResult(boolean isUnique);
+    }
+
 }
