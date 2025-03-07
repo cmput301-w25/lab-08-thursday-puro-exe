@@ -59,11 +59,26 @@ public class MovieDialogFragment extends DialogFragment {
         editMovieName.addTextChangedListener(new TextValidator(editMovieName) {
             @Override
             public void validate(TextView textView) {
-                if(isEmpty(textView.getText())) {
-                    textView.setError("Move name cannot be empty!");
+                String movieName = textView.getText().toString();
+
+                // Check if movie name is empty
+                if (isEmpty(movieName)) {
+                    textView.setError("Movie name cannot be empty!");
+                    return;  // Stop further validation if empty
                 }
+
+                // Check if movie name is a duplicate
+                movieProvider.checkUniqueTitle(movieName, new MovieProvider.TitleCheckCallback() {
+                    @Override
+                    public void onResult(boolean isUnique) {
+                        if (!isUnique) {
+                            textView.setError("Movie name cannot be a duplicate!");
+                        }
+                    }
+                });
             }
         });
+
 
         editMovieGenre.addTextChangedListener(new TextValidator(editMovieGenre) {
             @Override
@@ -78,9 +93,9 @@ public class MovieDialogFragment extends DialogFragment {
             @Override
             public void validate(TextView textView) {
                 if(isEmpty(textView.getText())) {
-                    textView.setError("Move year cannot be empty!");
+                    textView.setError("Movie year cannot be empty!");
                 } else if (!isDigitsOnly(textView.getText())) {
-                    textView.setError("Move year must be numeric!");
+                    textView.setError("Movie year must be numeric!");
                 }
             }
         });
@@ -133,6 +148,7 @@ public class MovieDialogFragment extends DialogFragment {
             editMovieYear.setError("Movie year must be numeric!");
             return false;
         }
+
         return true;
     }
 }
